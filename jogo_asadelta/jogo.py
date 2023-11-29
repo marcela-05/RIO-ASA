@@ -10,17 +10,15 @@ import pygame, random
 width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
-#ESC FECHA O JOGO
-#SETA PRA CIMA ANDA COM O CENÁRIO E COMEÇA O JOGO (alterar no uptade)
-
-
 def load():
     global background, montanha, skins_asadelta, objetos, obj_img, obj_pos #imgs
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
-    global vel_fundo, vel_montanha
+    global vel_fundo, vel_montanha, vel_obj, n_obj
     global x_pers, y_pers, x_obj, y_obj
-    global clock, tempo
+    global clock, tempo, cons
+
+    n_obj = 10
 
     tempo = 0
     
@@ -33,6 +31,7 @@ def load():
 
     vel_fundo = 0.05
     vel_montanha = 0.1
+    vel_obj = 0.6
 
     background = pygame.image.load("background.png") #carrega o fundo
     background_largura = background.get_width()
@@ -48,31 +47,31 @@ def load():
         objetos.append(pygame.transform.scale(img, (img.get_width()/3,img.get_height()/3)))
 
     obj_pos = []   
-    obj_img = []  
-    for i in range(5):
+    obj_img = [] 
+    cons = [] 
+    for i in range(n_obj):
         obj_img.append(objetos[random.randint(0,len(objetos)-1)])
         x_obj = width + 100
         y_obj = random.randint(0,height)
         obj_pos.append((x_obj,y_obj))
+        cons.append(0)
     print(obj_pos)
 
     clock = pygame.time.Clock()
 
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
-    
 
 def spawn_obj():
-    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos
+    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos, cons
     
     for k in range(len(obj_img)):
         if (obj_pos[k][0] < 0):
             i = random.randint(0,len(objetos)-1)
             obj_img[k] = objetos[i]
             y_obj = random.randint(100,height-250)
-            obj_pos[k] = (x_obj,y_obj)
-        
-        obj_pos[k] = (x_obj + (800*k),obj_pos[k][1])
+            cons[k] += width + 100
+        obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
         screen.blit(obj_img[k],obj_pos[k])
     
 
@@ -87,9 +86,9 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
     a=0
 
 def update(dt):
-    global px_fundo, px_montanha, y_pers, tempo, x_obj
+    global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj
     global anda
-    global audio
+
     k = pygame.key.get_pressed()
 
     if k[pygame.K_SPACE]:
@@ -102,20 +101,18 @@ def update(dt):
 
     if k[pygame.K_c]:
         pygame.mixer.music.unpause()
-
            
     if anda:
         if px_fundo > (background_largura * -1) + width:
             px_fundo -= (vel_fundo * dt)
             px_montanha -=  (vel_montanha * dt)
-            x_obj -= (0.9 * dt)
+            x_obj -= (vel_obj * dt)
         else:
             px_fundo = -8
 
         if k[pygame.K_UP]:
             y_pers = y_pers - (0.2 * dt)
             
-
         if k[pygame.K_DOWN]:
             y_pers = y_pers + (0.2 * dt)
 
@@ -138,7 +135,7 @@ def main_loop(screen):
                 
         draw_screen(screen)
 
-        clock.tick(60)        
+        clock.tick(120)        
         dt = clock.get_time()
 
         update(dt)
