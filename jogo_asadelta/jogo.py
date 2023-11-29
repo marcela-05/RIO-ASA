@@ -3,6 +3,7 @@ import pygame, random
 width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
+
 #ESC FECHA O JOGO
 #SETA PRA CIMA ANDA COM O CENÁRIO E COMEÇA O JOGO (alterar no uptade)
 
