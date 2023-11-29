@@ -1,3 +1,10 @@
+'''import pygame
+width = 1900 #Largura Janela
+height = 1000 #Altura Janela
+BLACK = 0,0,0
+
+def draw_screen(screen):'''
+
 import pygame, random
 
 width = 1900 #Largura Janela
@@ -7,15 +14,13 @@ height = 1000 #Altura Janela
 #SETA PRA CIMA ANDA COM O CENÁRIO E COMEÇA O JOGO (alterar no uptade)
 
 
-
 def load():
-    global background, montanha, skins_asadelta, objetos, obj_img #imgs
+    global background, montanha, skins_asadelta, objetos, obj_img, obj_pos #imgs
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
     global vel_fundo, vel_montanha
     global x_pers, y_pers, x_obj, y_obj
     global clock, tempo
-
 
     tempo = 0
     
@@ -24,9 +29,6 @@ def load():
     px_montanha = 100
     x_pers = 400
     y_pers = 400
-
-    x_obj = -1
-    y_obj = random.randint(0,height)
 
 
     vel_fundo = 0.05
@@ -45,25 +47,33 @@ def load():
         img = (pygame.image.load("obj_" + str(i) + ".png"))
         objetos.append(pygame.transform.scale(img, (img.get_width()/3,img.get_height()/3)))
 
-    obj_img = [objetos[random.randint(0,len(objetos))]]
-    clock = pygame.time.Clock()
+    obj_pos = []   
+    obj_img = []  
+    for i in range(5):
+        obj_img.append(objetos[random.randint(0,len(objetos)-1)])
+        x_obj = width + 100
+        y_obj = random.randint(0,height)
+        obj_pos.append((x_obj,y_obj))
+    print(obj_pos)
 
-    
+    clock = pygame.time.Clock()
 
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
+    
 
 def spawn_obj():
-    global objetos, x_obj,y_obj, tempo, obj_img
-    obj_pos = [(x_obj,y_obj)]
-    if (x_obj < 0):
-        i = random.randint(0,len(objetos)-1)
-        obj_img[0] = objetos[i]
-        x_obj = width + 100
-        y_obj = random.randint(100,height-250)
-        obj_pos[0] =(x_obj,y_obj)
+    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos
+    
+    for k in range(len(obj_img)):
+        if (obj_pos[k][0] < 0):
+            i = random.randint(0,len(objetos)-1)
+            obj_img[k] = objetos[i]
+            y_obj = random.randint(100,height-250)
+            obj_pos[k] = (x_obj,y_obj)
         
-    screen.blit(obj_img[0],obj_pos[0])
+        obj_pos[k] = (x_obj + (800*k),obj_pos[k][1])
+        screen.blit(obj_img[k],obj_pos[k])
     
 
 def draw_screen(screen):
@@ -140,3 +150,36 @@ screen = pygame.display.set_mode((width, height))
 load()
 main_loop(screen)
 pygame.quit()
+
+#exec(start)
+'''
+def main_loop(screen):
+    running = True
+    while running:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
+                break
+            elif e.type == pygame.MOUSEBUTTONDOWN:
+                mouse_buttons = pygame.mouse.get_pressed()
+                px_mouse, py_mouse = pygame.mouse.get_pos()
+                mouse_click_down(px_mouse, py_mouse, mouse_buttons)
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE: #esc fecha o jogo
+                    pygame.quit()
+                    return
+                
+        draw_screen(screen)
+
+        clock.tick(60)        
+        dt = clock.get_time()
+
+        update(dt)
+
+        pygame.display.update()
+
+pygame.init()
+screen = pygame.display.set_mode((width, height))
+load()
+main_loop(screen)
+pygame.quit()'''
