@@ -7,6 +7,7 @@ height = 1000 #Altura Janela
 #SETA PRA CIMA ANDA COM O CENÁRIO E COMEÇA O JOGO (alterar no uptade)
 
 
+
 def load():
     global background, montanha, skins_asadelta, objetos, obj_img #imgs
     global background_largura #tamanho das imagens
