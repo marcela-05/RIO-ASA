@@ -3,9 +3,9 @@ import pygame, random
 width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
-
 #ESC FECHA O JOGO
 #SETA PRA CIMA ANDA COM O CENÁRIO E COMEÇA O JOGO (alterar no uptade)
+
 
 def load():
     global background, montanha, skins_asadelta, objetos, obj_img #imgs
@@ -14,6 +14,7 @@ def load():
     global vel_fundo, vel_montanha
     global x_pers, y_pers, x_obj, y_obj
     global clock, tempo
+
 
     tempo = 0
     
@@ -46,6 +47,8 @@ def load():
     obj_img = [objetos[random.randint(0,len(objetos))]]
     clock = pygame.time.Clock()
 
+    
+
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
 
@@ -56,7 +59,7 @@ def spawn_obj():
         i = random.randint(0,len(objetos)-1)
         obj_img[0] = objetos[i]
         x_obj = width + 100
-        y_obj = random.randint(0,height)
+        y_obj = random.randint(100,height-100)
         obj_pos[0] =(x_obj,y_obj)
         
     screen.blit(obj_img[0],obj_pos[0])
@@ -75,11 +78,21 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
 def update(dt):
     global px_fundo, px_montanha, y_pers, tempo, x_obj
     global anda
+    global audio
     k = pygame.key.get_pressed()
 
-    if k[pygame.K_UP]:
+    if k[pygame.K_SPACE]:
         anda = True
-    
+        pygame.mixer.music.load("musica.fundo.mp3")
+        pygame.mixer.music.play()
+
+    if k[pygame.K_m]:
+        pygame.mixer.music.pause()
+
+    if k[pygame.K_c]:
+        pygame.mixer.music.unpause()
+
+           
     if anda:
         if px_fundo > (background_largura * -1) + width:
             px_fundo -= (vel_fundo * dt)
@@ -94,7 +107,8 @@ def update(dt):
 
         if k[pygame.K_DOWN]:
             y_pers = y_pers + (0.2 * dt)
-            
+
+    
 def main_loop(screen):
     running = True
     while running:
