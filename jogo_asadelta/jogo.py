@@ -59,7 +59,7 @@ def spawn_obj():
         i = random.randint(0,len(objetos)-1)
         obj_img[0] = objetos[i]
         x_obj = width + 100
-        y_obj = random.randint(100,height-100)
+        y_obj = random.randint(100,height-250)
         obj_pos[0] =(x_obj,y_obj)
         
     screen.blit(obj_img[0],obj_pos[0])
