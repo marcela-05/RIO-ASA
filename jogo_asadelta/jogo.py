@@ -31,7 +31,7 @@ def load():
 
     vel_fundo = 0.05
     vel_montanha = 0.1
-    vel_obj = 0.5
+    vel_obj = 0.6
 
     background = pygame.image.load("background.png") #carrega o fundo
     background_largura = background.get_width()
@@ -53,8 +53,9 @@ def load():
         obj_img.append(objetos[random.randint(0,len(objetos)-1)])
         x_obj = width + 100
         y_obj = random.randint(0,height)
-        obj_pos.append([x_obj,y_obj])
+        obj_pos.append((x_obj,y_obj))
         cons.append(0)
+    print(obj_pos)
 
     clock = pygame.time.Clock()
 
@@ -68,10 +69,11 @@ def spawn_obj():
         if (obj_pos[k][0] < 0):
             i = random.randint(0,len(objetos)-1)
             obj_img[k] = objetos[i]
-            y_obj = random.randint(50,height-200)
+            y_obj = random.randint(100,height-250)
             cons[k] += width + 100
         obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
-
+        screen.blit(obj_img[k],obj_pos[k])
+    
 def draw_screen(screen):
     k = pygame.key.get_pressed()
 
@@ -121,7 +123,6 @@ def update(dt):
         if k[pygame.K_UP]:
             y_pers = y_pers - (0.2 * dt)
             
-            
         if k[pygame.K_DOWN]:
             y_pers = y_pers + (0.2 * dt)
 
@@ -144,7 +145,7 @@ def main_loop(screen):
                 
         draw_screen(screen)
 
-        clock.tick(60)        
+        clock.tick(120)        
         dt = clock.get_time()
 
         update(dt)
