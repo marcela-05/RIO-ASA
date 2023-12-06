@@ -17,7 +17,11 @@ def load():
     global vel_fundo, vel_montanha, vel_obj, n_obj
     global x_pers, y_pers, x_obj, y_obj
     global clock, tempo, cons
-    global som, pausa, play, mudo, musica, continuacao
+    global som, pausa, play, mudo, musica, continuacao, fonte, pontuacao
+
+    fonte = pygame.font.Font(pygame.font.get_default_font(), 50)
+    pontuacao = 0
+
     n_obj = 10
 
     tempo = 0
@@ -27,7 +31,6 @@ def load():
     px_montanha = 100
     x_pers = 400
     y_pers = 400
-
 
     vel_fundo = 0.05
     vel_montanha = 0.1
@@ -55,7 +58,6 @@ def load():
         y_obj = random.randint(0,height)
         obj_pos.append((x_obj,y_obj))
         cons.append(0)
-    print(obj_pos)
 
     clock = pygame.time.Clock()
 
@@ -70,6 +72,7 @@ def load():
 
     musica = True
     continuacao = True
+
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
 
@@ -80,16 +83,22 @@ def spawn_obj():
         if (obj_pos[k][0] < 0):
             i = random.randint(0,len(objetos)-1)
             obj_img[k] = objetos[i]
-            y_obj = random.randint(100,height-250)
-            cons[k] += width + 100
+            obj_pos[k] = (x_obj + (850*k) + cons[k],random.randint(100,height-250))
+            cons[k] += width + 150
         obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
         screen.blit(obj_img[k],obj_pos[k])
     
 def draw_screen(screen):
+    global pontuacao
+
     k = pygame.key.get_pressed()
 
     screen.blit(background,(px_fundo,0)) #printa o fundo
     screen.blit(montanha,(px_montanha,400))
+
+    pont = fonte.render("PONTUAÇÃO: %s" % (str(pontuacao)), False, 	(0, 0, 0))
+    screen.blit(pont,(300,150))
+    
     if musica:
         som2= pygame.transform.scale(som, (som.get_width()/4,som.get_height()/4))
 
@@ -132,7 +141,7 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
 
 
 def update(dt):
-    global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj
+    global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj, pontuacao
     global anda
 
     k = pygame.key.get_pressed()
@@ -165,6 +174,10 @@ def update(dt):
             
         if k[pygame.K_DOWN]:
             y_pers = y_pers + (0.2 * dt)
+        
+        pontuacao += round((0.1 * dt)/4)
+
+    
 
     
 def main_loop(screen):
