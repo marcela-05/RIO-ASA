@@ -17,7 +17,7 @@ def load():
     global vel_fundo, vel_montanha, vel_obj, n_obj
     global x_pers, y_pers, x_obj, y_obj
     global clock, tempo, cons
-
+    global som, pausa, play, mudo, musica, continuacao
     n_obj = 10
 
     tempo = 0
@@ -59,6 +59,17 @@ def load():
 
     clock = pygame.time.Clock()
 
+    som = (pygame.image.load("som laranja.png"))
+
+    mudo = (pygame.image.load("mudo laranja.png"))
+
+    pausa = (pygame.image.load("pausa laranja.png"))
+
+    play = (pygame.image.load("play laranja.png"))
+
+
+    musica = True
+    continuacao = True
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
 
@@ -79,7 +90,24 @@ def draw_screen(screen):
 
     screen.blit(background,(px_fundo,0)) #printa o fundo
     screen.blit(montanha,(px_montanha,400))
-    
+    if musica:
+        som2= pygame.transform.scale(som, (som.get_width()/4,som.get_height()/4))
+
+        screen.blit(som2, (1450, 110))
+    else:
+        mudo2= pygame.transform.scale(mudo, (mudo.get_width()/4,mudo.get_height()/4))
+
+        screen.blit(mudo2, (1450, 110))
+
+    if continuacao:
+        pausa2= pygame.transform.scale(pausa, (pausa.get_width()/6,pausa.get_height()/6))
+
+        screen.blit(pausa2, (1350, 130))
+    else:
+        play2= pygame.transform.scale(play, (play.get_width()/6,play.get_height()/6))
+
+        screen.blit(play2, (1350, 130))
+
     skin = skins_asadelta[1]
 
     if k[pygame.K_UP]:
@@ -93,7 +121,15 @@ def draw_screen(screen):
     
 
 def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
-    a=0
+    global musica, continuacao
+
+    if mouse_buttons[0]:
+        if check_click(1450, 110, 90, 80, px_mouse, py_mouse):
+            musica = not musica
+
+        if check_click(1350, 130, 80, 80, px_mouse, py_mouse):
+            continuacao = not continuacao
+
 
 def update(dt):
     global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj
@@ -106,12 +142,16 @@ def update(dt):
         pygame.mixer.music.load("musica.fundo.mp3")
         pygame.mixer.music.play()
 
-    if k[pygame.K_m]:
-        pygame.mixer.music.pause()
-
-    if k[pygame.K_c]:
+    if musica:
         pygame.mixer.music.unpause()
-           
+    else:
+        pygame.mixer.music.pause()
+    if continuacao:
+        anda = True
+    else:
+        anda = False
+        pygame.mixer.music.pause()
+             
     if anda:
         if px_fundo > (background_largura * -1) + width:
             px_fundo -= (vel_fundo * dt)
