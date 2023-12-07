@@ -5,7 +5,7 @@ BLACK = 0,0,0
 
 def draw_screen(screen):'''
 
-import pygame, random
+import pygame, random, math
 
 width = 1900 #Largura Janela
 height = 1000 #Altura Janela
@@ -15,7 +15,7 @@ def load():
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
     global vel_fundo, vel_montanha, vel_obj, n_obj
-    global x_pers, y_pers, x_obj, y_obj
+    global x_pers, y_pers, x_obj, y_obj, colisao
     global clock, tempo, cons
     global som, pausa, play, mudo, musica, continuacao, fonte, pontuacao
 
@@ -27,6 +27,7 @@ def load():
     tempo = 0
     
     anda = False
+    colisao = False
     px_fundo = -1500
     px_montanha = 100
     x_pers = 400
@@ -76,8 +77,14 @@ def load():
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
 
+def check_circular_collision(ax, ay, ar, bx, by, br):
+   dx = bx - ax
+   dy = by - ay
+   dist = math.sqrt(dx * dx + dy * dy)
+   return dist < ar + br
+
 def spawn_obj():
-    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos, cons
+    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos, cons, skin, colisao, x_pers, y_pers
     
     for k in range(len(obj_img)):
         if (obj_pos[k][0] < 0):
@@ -87,16 +94,18 @@ def spawn_obj():
             cons[k] += width + 150
         obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
         screen.blit(obj_img[k],obj_pos[k])
+        if check_circular_collision(x_pers+28, y_pers, 80, obj_pos[k][0], obj_pos[k][1], 40):
+            colisao = True
     
 def draw_screen(screen):
-    global pontuacao
+    global pontuacao, skin
 
     k = pygame.key.get_pressed()
 
     screen.blit(background,(px_fundo,0)) #printa o fundo
     screen.blit(montanha,(px_montanha,400))
 
-    pont = fonte.render("PONTUAÇÃO: %s" % (str(pontuacao)), False, 	(0, 0, 0))
+    pont = fonte.render("PONTUAÇÃO: %s, colisao = %s, y = %f" % (str(pontuacao),colisao,y_pers), False, 	(0, 0, 0))
     screen.blit(pont,(300,150))
     
     if musica:
@@ -160,6 +169,9 @@ def update(dt):
     else:
         anda = False
         pygame.mixer.music.pause()
+
+    if colisao:
+        anda = False
              
     if anda:
         if px_fundo > (background_largura * -1) + width:
@@ -177,7 +189,8 @@ def update(dt):
         
         pontuacao += round((0.1 * dt)/4)
 
-    
+
+
 
     
 def main_loop(screen):
