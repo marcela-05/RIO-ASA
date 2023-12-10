@@ -4,7 +4,7 @@ width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
 def load():
-    global tela, background, montanha, skin, objetos, obj_img, obj_pos, logo, top, seta, over #imgs
+    global tela, background, montanha, skin, objetos, obj_img, obj_pos, logo, top, seta, over, setaAlta, setaBaixo,espaco,tutorial#imgs
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
     global vel_fundo, vel_montanha, vel_obj, n_obj
@@ -41,6 +41,7 @@ def load():
 
     background = pygame.image.load("background.png") #carrega o fundo
     logo = pygame.image.load("logo.png")
+    tutorial = pygame.image.load("tutorial.png")
     background_largura = background.get_width()
     montanha = pygame.image.load("montanha.png") #carrega a montanha
 
@@ -70,7 +71,10 @@ def load():
     top = (pygame.image.load("top5.png"))
     seta = (pygame.image.load("seta.png"))
     over = (pygame.image.load("game over.png"))
-
+    espaco = (pygame.image.load("espaco.png"))
+    setaBaixo = (pygame.image.load("setaBaixo.png"))
+    setaAlta = (pygame.image.load("setaAlta.png"))
+    
     pygame.mixer.music.load("musica.fundo.mp3")
     pygame.mixer.music.play()
     musica = True
@@ -107,7 +111,7 @@ def jogo():
     screen.blit(background,(px_fundo,0)) #printa o fundo
     screen.blit(montanha,(px_montanha,400))
 
-    pont = fonte.render("PONTUAÇÃO: %s, colisao = %s" % (str(pontuacao),colisao), False, (255, 212, 89))
+    pont = fonte.render("PONTUAÇÃO: %s" % (str(pontuacao)), False, (255, 212, 89))
     screen.blit(pont,(300,150))
     
     if musica:
@@ -172,6 +176,41 @@ def menu():
 
         screen.blit(mudo2, (1450, 110))
 
+def intro():
+    screen.blit(background,(px_fundo,0)) #printa o fundo
+    
+    setaAlta2= pygame.transform.scale(setaAlta, (setaAlta.get_width()/2,setaAlta.get_height()/2))
+    screen.blit(setaAlta2, (400, 400))
+    
+    alto = fonte.render("Para a asa delta subir", False,(255, 212, 89))
+    screen.blit(alto,(570,425))
+
+    setaBaixo2= pygame.transform.scale(setaBaixo, (setaBaixo.get_width()/2,setaBaixo.get_height()/2))
+    screen.blit(setaBaixo2, (400, 550))
+    
+    baixo = fonte.render("Para a asa delta descer", False,(255, 212, 89))
+    screen.blit(baixo,(570,575))
+    
+    espaco2= pygame.transform.scale(espaco, (espaco.get_width()/2,espaco.get_height()/2))
+    screen.blit(espaco2, (400, 700))
+    
+    iniciar = fonte.render("Para iniciar o jogo", False,(255, 212, 89))
+    screen.blit(iniciar,(700,710))
+
+    pular = fonte.render("PULAR", False,(255, 212, 89))
+    screen.blit(pular,(1400,800))
+    
+    screen.blit(tutorial,(660,200))
+
+    if musica:
+        som2= pygame.transform.scale(som, (som.get_width()/4,som.get_height()/4))
+
+        screen.blit(som2, (1450, 110))
+    else:
+        mudo2= pygame.transform.scale(mudo, (mudo.get_width()/4,mudo.get_height()/4))
+
+        screen.blit(mudo2, (1450, 110))
+
 def top5():
     global ranking
     screen.blit(background,(px_fundo,0)) #printa o fundo
@@ -200,7 +239,7 @@ def top5():
 def gameover():
     screen.blit(background,(px_fundo,0)) #printa o fundo
     pont = fonte.render("PONTUAÇÃO: %s" % (str(pontuacao)), False,(255, 212, 89))
-    screen.blit(pont,(655,450))
+    screen.blit(pont,(675,450))
     nov = fonte.render("JOGAR NOVAMENTE", False,(255, 212, 89))
     screen.blit(nov,(680,550))
     saida = fonte.render("SAIR", False,(255, 212, 89))
@@ -221,6 +260,8 @@ def draw_screen(screen):
 
     if tela == 'menu':
         menu()
+    elif tela == 'intro':
+        intro()
     elif tela == 'jogo':
         jogo()
     elif tela == 'top 5':
@@ -243,14 +284,20 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
         if mouse_buttons[0]:
             if check_click(855,480, 200, 80, px_mouse, py_mouse):
                 resetajogo()
-                tela = 'jogo'
+                tela = 'intro'
 
             if check_click(870, 560, 150, 80, px_mouse, py_mouse):
                 tela = 'top 5'
 
             if check_click(880,640, 100, 80, px_mouse, py_mouse):
                 pygame.quit()
-    
+
+    if tela == 'intro':
+        if mouse_buttons[0]:
+            if check_click(1400,800, 100, 80, px_mouse, py_mouse):
+                resetajogo()
+                tela = 'jogo'
+                
     if tela == 'top 5':
         if mouse_buttons[0]:
             if check_click(300,125, 80, 80, px_mouse, py_mouse): 
