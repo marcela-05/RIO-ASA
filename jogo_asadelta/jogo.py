@@ -4,7 +4,7 @@ width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
 def load():
-    global tela, background, montanha, skin, objetos, obj_img, obj_pos, logo, top, seta, over, setaAlta, setaBaixo,espaco,tutorial#imgs
+    global tela, background, montanha, skin, skin_mask, objetos, obj_img, obj_masks, obj_pos, logo, top, seta, over, setaAlta, setaBaixo,espaco,tutorial#imgs
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
     global vel_fundo, vel_montanha, vel_obj, n_obj
@@ -23,8 +23,6 @@ def load():
         ranking.append(int(pont))
     arq_rank.close()
 
-    n_obj = 10
-
     tempo = 0
     
     anda = False
@@ -37,7 +35,7 @@ def load():
 
     vel_fundo = 0.05
     vel_montanha = 0.1
-    vel_obj = 0.6
+    vel_obj = 0.45
 
     background = pygame.image.load("background.png") #carrega o fundo
     logo = pygame.image.load("logo.png")
@@ -46,18 +44,24 @@ def load():
     montanha = pygame.image.load("montanha.png") #carrega a montanha
 
     skin = pygame.image.load("asadelta_1.png")
+    skin_mask = pygame.mask.from_surface(skin)
 
     objetos = []
-    for i in range(9):
+    obj_masks = []
+
+    for i in range(8):
         img = (pygame.image.load("obj_" + str(i) + ".png"))
         objetos.append(pygame.transform.scale(img, (img.get_width()/3,img.get_height()/3)))
 
+    n_obj = len(objetos)
     obj_pos = []   
     obj_img = [] 
     cons = [] 
     for i in range(n_obj):
-        obj_img.append(objetos[random.randint(0,len(objetos)-1)])
-        x_obj = width + 800
+        a = random.randint(0,len(objetos)-1)
+        obj_img.append(objetos[a])
+        obj_masks.append(pygame.mask.from_surface(objetos[a]))
+        x_obj = -10
         y_obj = random.randint(0,height)
         obj_pos.append((x_obj,y_obj))
         cons.append(0)
@@ -79,33 +83,26 @@ def load():
     pygame.mixer.music.play()
     musica = True
 
-    
-
 def check_click(x1,y1,w1,h1,x2,y2):
     return x1 < x2+1 and x2 < x1+w1 and y1 < y2+1 and y2 < y1+h1
 
-def check_circular_collision(ax, ay, ar, bx, by, br):
-   dx = bx - ax
-   dy = by - ay
-   dist = math.sqrt(dx * dx + dy * dy)
-   return dist < ar + br
-
 def spawn_obj():
-    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos, cons, skin, colisao, x_pers, y_pers
+    global objetos, x_obj,y_obj, tempo, obj_img, obj_pos, cons, skin, colisao, x_pers, y_pers, skin_mask, obj_masks
     
     for k in range(len(obj_img)):
         if (obj_pos[k][0] < 0):
             i = random.randint(0,len(objetos)-1)
             obj_img[k] = objetos[i]
+            obj_masks[k] = pygame.mask.from_surface(objetos[i])
             obj_pos[k] = (x_obj + (850*k) + cons[k],random.randint(100,height-250))
             cons[k] += width + 150
         obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
         screen.blit(obj_img[k],obj_pos[k])
-        if check_circular_collision(x_pers+28, y_pers, 80, obj_pos[k][0], obj_pos[k][1], 40):
+        if skin_mask.overlap(obj_masks[k], (obj_pos[k][0] - x_pers, obj_pos[k][1] - y_pers)):
             colisao = True
 
 def jogo():
-    global pontuacao, skin
+    global pontuacao, skin, skin_mask
     k = pygame.key.get_pressed()
 
     screen.blit(background,(px_fundo,0)) #printa o fundo
@@ -133,25 +130,31 @@ def jogo():
         screen.blit(play2, (1350, 130))
 
     skin = pygame.image.load("asadelta_1.png")
+    skin_mask = pygame.mask.from_surface(skin)
 
     if k[pygame.K_UP]:
        skin =  pygame.transform.rotate(skin, 5)
+       skin_mask = pygame.mask.from_surface(skin)
+
     if k[pygame.K_DOWN]:
        skin  =  pygame.transform.rotate(skin, -12)
+       skin_mask = pygame.mask.from_surface(skin)
     
     screen.blit(skin,(x_pers,y_pers))
 
     spawn_obj()
 
 def resetajogo():
-    global px_montanha, continuacao, x_obj,pontuacao, colisao, y_pers
+    global px_montanha, continuacao, x_obj,pontuacao, colisao, y_pers, cons, obj_pos, vel_obj
     
+    vel_obj = 0.45
     y_pers = 400
     colisao = False
     pontuacao = 0
     px_montanha = 100
     continuacao = False
-    x_obj = width + 800
+    for k in range(len(obj_img)):
+        obj_pos[k] = (-10,0)
 
 def menu():
     screen.blit(background,(px_fundo,0)) #printa o fundo
@@ -268,7 +271,6 @@ def draw_screen(screen):
         top5()
     elif tela =='game over':
         gameover()
-    
 
 def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
     global musica, continuacao, tela
@@ -315,7 +317,7 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
 
 def update(dt):
     global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj, pontuacao, continuacao, tela
-    global anda
+    global anda, vel_obj
 
     k = pygame.key.get_pressed()
 
@@ -333,12 +335,12 @@ def update(dt):
         atualizaranking()
         tela = 'game over'
         
-
     if tela == 'jogo':
         if k[pygame.K_SPACE]:
             continuacao = True
-        
+    
         if anda:
+            vel_obj += 0.0005
             if px_fundo > (background_largura * -1) + width:
                 px_fundo -= (vel_fundo * dt)
                 px_montanha -=  (vel_montanha * dt)
