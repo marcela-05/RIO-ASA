@@ -4,17 +4,24 @@ width = 1900 #Largura Janela
 height = 1000 #Altura Janela
 
 def load():
-    global tela, background, montanha, skin, objetos, obj_img, obj_pos, logo, top, seta #imgs
+    global tela, background, montanha, skin, objetos, obj_img, obj_pos, logo, top, seta, over #imgs
     global background_largura #tamanho das imagens
     global px_fundo, px_montanha, anda #anda com o cenario
     global vel_fundo, vel_montanha, vel_obj, n_obj
     global x_pers, y_pers, x_obj, y_obj, colisao
     global clock, tempo, cons
     global som, pausa, play, mudo, musica, continuacao, fonte, pontuacao
+    global arq_rank, ranking
 
     fonte = pygame.font.Font(pygame.font.get_default_font(), 50)
     pontuacao = 0
     tela = 'menu'
+
+    ranking = []
+    arq_rank = open("ranking.txt","r")
+    for pont in arq_rank:
+        ranking.append(int(pont))
+    arq_rank.close()
 
     n_obj = 10
 
@@ -62,6 +69,7 @@ def load():
     play = (pygame.image.load("Play.png"))
     top = (pygame.image.load("top5.png"))
     seta = (pygame.image.load("seta.png"))
+    over = (pygame.image.load("game over.png"))
 
     pygame.mixer.music.load("musica.fundo.mp3")
     pygame.mixer.music.play()
@@ -132,8 +140,10 @@ def jogo():
     spawn_obj()
 
 def resetajogo():
-    global px_montanha, continuacao, x_obj,pontuacao
+    global px_montanha, continuacao, x_obj,pontuacao, colisao, y_pers
     
+    y_pers = 400
+    colisao = False
     pontuacao = 0
     px_montanha = 100
     continuacao = False
@@ -163,43 +173,48 @@ def menu():
         screen.blit(mudo2, (1450, 110))
 
 def top5():
+    global ranking
     screen.blit(background,(px_fundo,0)) #printa o fundo
 
-    primeiro = fonte.render("1º) Strogonoff", False,(255, 212, 89))
+    primeiro = fonte.render("1º) %s" % (str(ranking[0])), False,(255, 212, 89))
     screen.blit(primeiro,(500,400))
-
-    p1 = fonte.render("Pontuação:10000000", False,(255, 212, 89))
-    screen.blit(p1,(950,400))
     
-    segundo =  fonte.render("2º) Yakisoba", False,(255, 212, 89))
+    segundo =  fonte.render("2º) %s" % (str(ranking[1])), False,(255, 212, 89))
     screen.blit(segundo,(500,480))
 
-    p2 =  fonte.render("Pontuação:9000000", False,(255, 212, 89))
-    screen.blit(p2,(950,480))
-    
-    terceiro = fonte.render("3º) Cookie", False,(255, 212, 89))
+    terceiro = fonte.render("3º) %s" % (str(ranking[2])), False,(255, 212, 89))
     screen.blit(terceiro,(500,560))
-
-    p3 = fonte.render("Pontuação:800000", False,(255, 212, 89))
-    screen.blit(p3,(950,560))
     
-    quarto = fonte.render("4º) Poke", False,(255, 212, 89))
+    quarto = fonte.render("4º) %s" % (str(ranking[3])), False,(255, 212, 89))
     screen.blit(quarto,(500,640))
     
-    p4 = fonte.render("Pontuação:700000", False,(255, 212, 89))
-    screen.blit(p4,(950,640))
-    
-    quinto = fonte.render("5º) Bolo de copo", False,(255, 212, 89))
+    quinto = fonte.render("5º) %s" % (str(ranking[4])), False,(255, 212, 89))
     screen.blit(quinto,(500,720))
-
-    p5 = fonte.render("Pontuação:50000", False,(255, 212, 89))
-    screen.blit(p5,(950,720))
 
     top2 = pygame.transform.scale(top, (top.get_width()/1.2,top.get_height()/1.2))
     screen.blit(top2,(670,150))
     
     seta2= pygame.transform.scale(seta, (seta.get_width()/4,seta.get_height()/4))
     screen.blit(seta2,(300,125))
+
+def gameover():
+    screen.blit(background,(px_fundo,0)) #printa o fundo
+    pont = fonte.render("PONTUAÇÃO: %s" % (str(pontuacao)), False,(255, 212, 89))
+    screen.blit(pont,(655,450))
+    nov = fonte.render("JOGAR NOVAMENTE", False,(255, 212, 89))
+    screen.blit(nov,(680,550))
+    saida = fonte.render("SAIR", False,(255, 212, 89))
+    screen.blit(saida,(860,650))
+    screen.blit(over,(600,250))
+
+def atualizaranking():
+    ranking.append(pontuacao)
+    ranking.sort(reverse=True)
+    ranking.pop(5)
+    arq_rank = open("ranking.txt","w")
+    for i in range(0,5):
+        arq_rank.write("%d\n" % ranking[i])
+    arq_rank.close()
 
 def draw_screen(screen):
     global tela, px_fundo, px_montanha
@@ -210,6 +225,8 @@ def draw_screen(screen):
         jogo()
     elif tela == 'top 5':
         top5()
+    elif tela =='game over':
+        gameover()
     
 
 def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
@@ -238,9 +255,19 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
         if mouse_buttons[0]:
             if check_click(300,125, 80, 80, px_mouse, py_mouse): 
                 tela = 'menu'
+    
+    if tela =='game over':
+        if mouse_buttons[0]:
+            if check_click(650,550, 600, 80, px_mouse, py_mouse):
+                resetajogo()
+                tela = 'jogo'
+            if check_click(860,650, 200, 80, px_mouse, py_mouse):
+                tela = 'menu'
+            if check_click(1450, 110, 90, 80, px_mouse, py_mouse):
+                musica = not musica
 
 def update(dt):
-    global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj, pontuacao, continuacao
+    global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj, pontuacao, continuacao, tela
     global anda
 
     k = pygame.key.get_pressed()
@@ -255,8 +282,10 @@ def update(dt):
         anda = False
         pygame.mixer.music.pause()
 
-    if colisao:
-        anda = False
+    if colisao and tela == 'jogo':
+        atualizaranking()
+        tela = 'game over'
+        
 
     if tela == 'jogo':
         if k[pygame.K_SPACE]:
