@@ -49,7 +49,7 @@ def load():
     objetos = []
     obj_masks = []
 
-    for i in range(8):
+    for i in range(28):
         img = (pygame.image.load("obj_" + str(i) + ".png"))
         objetos.append(pygame.transform.scale(img, (img.get_width()/3,img.get_height()/3)))
 
@@ -98,11 +98,13 @@ def spawn_obj():
             cons[k] += width + 150
         obj_pos[k] = (x_obj + (800*k) + cons[k],obj_pos[k][1])
         screen.blit(obj_img[k],obj_pos[k])
+
+
         if skin_mask.overlap(obj_masks[k], (obj_pos[k][0] - x_pers, obj_pos[k][1] - y_pers)):
             colisao = True
 
 def jogo():
-    global pontuacao, skin, skin_mask
+    global pontuacao, skin, skin_mask,y_pers
     k = pygame.key.get_pressed()
 
     screen.blit(background,(px_fundo,0)) #printa o fundo
@@ -296,7 +298,7 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
 
     if tela == 'intro':
         if mouse_buttons[0]:
-            if check_click(1400,800, 100, 80, px_mouse, py_mouse):
+            if check_click(1400,800, 150, 80, px_mouse, py_mouse):
                 resetajogo()
                 tela = 'jogo'
                 
@@ -321,6 +323,8 @@ def update(dt):
 
     k = pygame.key.get_pressed()
 
+    
+        
     if musica:
         pygame.mixer.music.unpause()
     else:
@@ -350,10 +354,11 @@ def update(dt):
 
             if k[pygame.K_UP]:
                 y_pers = y_pers - (0.2 * dt)
+                y_pers = max(0, y_pers - (0.2 * dt))
                 
             if k[pygame.K_DOWN]:
                 y_pers = y_pers + (0.2 * dt)
-            
+                y_pers = min(height - skin.get_height(), y_pers + (0.2 * dt))
             pontuacao += round((0.1 * dt)/4)
     else:
         if px_fundo > (background_largura * -1) + width:
