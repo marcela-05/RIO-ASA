@@ -165,7 +165,7 @@ def menu():
     screen.blit(background,(px_fundo,0)) #printa o fundo
 
     creditos = fonte2.render("Feito por Guilherme Cunha e Marcela Issa", False,(255, 212, 89))
-    screen.blit(creditos,(0,0))
+    screen.blit(creditos,(200,100))
     
     comeco = fonte.render("INICIAR", False,(255, 212, 89))
     screen.blit(comeco,(855,480))
