@@ -10,10 +10,11 @@ def load():
     global vel_fundo, vel_montanha, vel_obj, n_obj
     global x_pers, y_pers, x_obj, y_obj, colisao
     global clock, tempo, cons
-    global som, pausa, play, mudo, musica, continuacao, fonte, pontuacao
+    global som, pausa, play, mudo, musica, continuacao, fonte, pontuacao, fonte2
     global arq_rank, ranking
 
     fonte = pygame.font.Font(pygame.font.get_default_font(), 50)
+    fonte2 = pygame.font.Font(pygame.font.get_default_font(), 20)
     pontuacao = 0
     tela = 'menu'
 
@@ -163,6 +164,9 @@ def resetajogo():
 def menu():
     screen.blit(background,(px_fundo,0)) #printa o fundo
 
+    creditos = fonte2.render("Feito por Guilherme Cunha e Marcela Issa", False,(255, 212, 89))
+    screen.blit(creditos,(0,0))
+    
     comeco = fonte.render("INICIAR", False,(255, 212, 89))
     screen.blit(comeco,(855,480))
 
