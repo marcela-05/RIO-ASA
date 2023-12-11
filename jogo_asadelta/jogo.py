@@ -1,4 +1,4 @@
-import pygame, random, math
+import pygame, random, math, time
 
 width = 1900 #Largura Janela
 height = 1000 #Altura Janela
@@ -35,7 +35,7 @@ def load():
 
     vel_fundo = 0.05
     vel_montanha = 0.1
-    vel_obj = 0.45
+    vel_obj = 0.2
 
     background = pygame.image.load("background.png") #carrega o fundo
     logo = pygame.image.load("logo.png")
@@ -43,6 +43,7 @@ def load():
     background_largura = background.get_width()
     montanha = pygame.image.load("montanha.png") #carrega a montanha
 
+    
     skin = pygame.image.load("asadelta_1.png")
     skin_mask = pygame.mask.from_surface(skin)
 
@@ -81,6 +82,7 @@ def load():
     
     pygame.mixer.music.load("musica.fundo.mp3")
     pygame.mixer.music.play()
+    pygame.mixer.music.set_endevent(pygame.USEREVENT + 1)
     musica = True
 
 def check_click(x1,y1,w1,h1,x2,y2):
@@ -149,7 +151,7 @@ def jogo():
 def resetajogo():
     global px_montanha, continuacao, x_obj,pontuacao, colisao, y_pers, cons, obj_pos, vel_obj
     
-    vel_obj = 0.45
+    vel_obj = 0.2
     y_pers = 400
     colisao = False
     pontuacao = 0
@@ -317,13 +319,12 @@ def mouse_click_down(px_mouse, py_mouse, mouse_buttons):
             if check_click(1450, 110, 90, 80, px_mouse, py_mouse):
                 musica = not musica
 
+
 def update(dt):
     global px_fundo, px_montanha, y_pers, tempo, x_obj, vel_obj, pontuacao, continuacao, tela
     global anda, vel_obj
 
     k = pygame.key.get_pressed()
-
-    
         
     if musica:
         pygame.mixer.music.unpause()
@@ -344,7 +345,7 @@ def update(dt):
             continuacao = True
     
         if anda:
-            vel_obj += 0.0005
+            vel_obj += 0.0002
             if px_fundo > (background_largura * -1) + width:
                 px_fundo -= (vel_fundo * dt)
                 px_montanha -=  (vel_montanha * dt)
@@ -353,11 +354,9 @@ def update(dt):
                 px_fundo = -8
 
             if k[pygame.K_UP]:
-                y_pers = y_pers - (0.2 * dt)
                 y_pers = max(0, y_pers - (0.2 * dt))
                 
             if k[pygame.K_DOWN]:
-                y_pers = y_pers + (0.2 * dt)
                 y_pers = min(height - skin.get_height(), y_pers + (0.2 * dt))
             pontuacao += round((0.1 * dt)/4)
     else:
@@ -370,6 +369,7 @@ def update(dt):
         pygame.mixer.music.unpause()
     else:
         pygame.mixer.music.pause()
+
     
 def main_loop(screen):
     global tela
@@ -386,6 +386,8 @@ def main_loop(screen):
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     tela = 'menu'
+            elif e.type == pygame.USEREVENT + 1:  # Event for music end
+                pygame.mixer.music.play()
                 
         draw_screen(screen)
 
